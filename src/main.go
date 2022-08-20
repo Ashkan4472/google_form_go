@@ -3,18 +3,17 @@ package main
 import (
 	"log"
 
+	"github.com/Ashkan4472/google_form_go/src/pkg/config"
 	"github.com/gofiber/fiber/v2"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
 )
 
-func main() {
-	dsn := "host=db user=google_form_admin password=updateme dbname=google_form port=5432 sslmode=disable TimeZone=Asia/Tehran"
-	_, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+func initialize() {
+	config.InitialEnv()
+	config.InitialDatabase()
+}
 
-	if err != nil {
-		panic(err)
-	}
+func main() {
+	initialize()
 
 	app := fiber.New()
 
