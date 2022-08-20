@@ -3,6 +3,7 @@ package config
 import (
 	"os"
 
+	"github.com/Ashkan4472/google_form_go/src/internals/models"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -17,4 +18,6 @@ func InitialDatabase() {
 	if err != nil {
 		panic(err)
 	}
+
+	DB.AutoMigrate(&models.User{})
 }
