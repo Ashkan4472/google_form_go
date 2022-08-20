@@ -22,3 +22,6 @@ go.work
 
 # Temperory folder for Air
 tmp
+
+# Ignore Database
+pg_data
