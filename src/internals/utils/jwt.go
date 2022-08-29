@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"fmt"
 	"os"
 	"strconv"
 	"time"
@@ -20,7 +19,6 @@ func JWTGenerate(user models.User) (string, error) {
 		"email": user.Email,
 		"exp": jwtExp,
 	}
-	fmt.Println(claims)
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	jwtSecret := os.Getenv("JWT_USER_SECRET")
 	return token.SignedString([]byte(jwtSecret))
