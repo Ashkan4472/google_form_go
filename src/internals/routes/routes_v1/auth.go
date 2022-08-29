@@ -10,7 +10,7 @@ import (
 func SetupAuthRoutes(router fiber.Router) {
 	r := router.Group("/auth")
 	r.Post("/signup", signUp)
-	// TODO: add login
+	r.Post("/login", login)
 }
 
 func signUp(c *fiber.Ctx) error {
@@ -59,5 +59,48 @@ func signUp(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
 		"token": token,
 		"user": user,
+	})
+}
+
+func login(c *fiber.Ctx) error {
+	type UserInput struct {
+		Email string `json:"email" validate:"required,email"`
+		Password string `json:"password"`
+	}
+
+	var userInput UserInput
+	if err := c.BodyParser(&userInput); err != nil {
+		c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": "Bad Body request",
+			"error": err.Error(),
+		})
+	}
+
+	if err := utils.ValidateStruct(userInput); err != nil {
+		c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": "Bad Body request",
+			"error": err,
+		})
+	}
+
+	var fetchedUser models.User
+	tx := config.DB.First(&fetchedUser, "email = ?", userInput.Email)
+	if tx.Error != nil {
+		c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"message": "Unauthorized",
+		})
+	}
+
+	isPassValid, _ := fetchedUser.CheckPasswordHash(userInput.Password)
+	if !isPassValid {
+		c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"message": "Unauthorized",
+		})
+	}
+
+	token, _ := utils.JWTGenerate(fetchedUser)
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"token": token,
+		"user": fetchedUser,
 	})
 }
